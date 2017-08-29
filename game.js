@@ -374,7 +374,6 @@ Shapes.prototype.updatePiece = function(keyPresses) {
 		Shapes.prototype.rotateOnce = true;
 	}	
 	
-
 	this.gravity();
 	this.updatePlayingField();
 };
@@ -407,16 +406,18 @@ function clearFilledLine() {
 
 function holdPiece() {
 	// check if there is no piece held
-	console.log("HOLD");
-	var heldPiece = (!Shapes.prototype.storedPiece) ? player.type : Shapes.prototype.storedPiece;
+	if (!Shapes.prototype.storedPiece) {
+		var shape = nextPiece.type;
+		nextPiece = generatePiece();
+	} else {
+		var shape = Shapes.prototype.storedPiece;
+	}
 
 	clearInterval(player.updateInterval);
-	console.log(player);
 	Shapes.prototype.storedPiece = player.type;
 	Shapes.prototype.hold = false;	
 	player.removeFromPlayingField();
-	console.log(heldPiece);
-	player = getNewPiece(heldPiece);
+	player = getNewPiece(shape);
 	drawStoredShape(Shapes.prototype.storedPiece);
 };
 
@@ -428,14 +429,12 @@ function generatePiece() {
 }
 
 function getNewPiece(type) {
+
 	// check if type in shapeTypes
-	console.log(type);
 	if (shapeTypes.indexOf(type) !== -1) {
-		console.log("IF");
 		var shape = new Shapes(type);
 	} else {
-		console.log("ELSE");
-		var shape = generatePiece();
+		var shape = nextPiece;
 		nextPiece = generatePiece();
 	}
 
