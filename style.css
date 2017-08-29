@@ -1,0 +1,93 @@
+body {
+	margin: 0;
+	padding: 0;
+    font-family: arial;
+}
+
+button {
+    width: 100px;
+    height: 35px;
+    margin: 2px;
+    background-color: #efefef;
+    border: 1px solid #aaa;
+}
+
+canvas {
+    border: 2px solid grey;
+}
+
+table {
+    border-collapse: collapse;;
+}
+
+td {
+    width: 30px;
+    height: 30px;
+    border: 1px solid white;
+}
+
+.center {
+    padding: 0;
+    margin: auto;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#game {
+    position: relative;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    margin-top: 3%;
+    padding: 0;
+    width: 500px;
+    height: 650px;
+}
+
+#canvas {
+    position: absolute;
+}
+
+#menu {
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    height: 600px;
+    border: 2px solid grey;
+    padding: 0 10px;
+}
+
+#menu button {
+    display: block;
+    margin: 3px auto;
+}
+
+#next, #holdPiece {
+    margin: 30px auto;
+}
+
+#playing-field {
+    display: inline-block;
+}
+
+#playAgainBtn {
+    display: none;
+    position: relative;
+    left: 100px;
+    top: -300px;
+    width: 100px;
+    height: 50px;
+    z-index: 100;
+}
+
+#help {
+    display: block;
+    text-align: center;
+}
