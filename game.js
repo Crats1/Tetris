@@ -1,20 +1,18 @@
 /*
 TODO
 
-BUGS
+BUGS/ISSUES
 -Fix game updating while paused
 -Start game when game over
 	-Hold current piece
+-Issues with hold function
+-Pausing when game is over
 
 IMPROVE
--Create better algorithm for spawning pieces
 -More responsive key presses
--Pausing when game is over
--Hide all elements when paused
 -Wall kick
 
 IMPLEMENT
--New game button
 -Ghost piece
 */
 "use strict";
@@ -422,8 +420,14 @@ function holdPiece() {
 };
 
 function generatePiece() {
-	var random = Math.floor(Math.random() * 7);
+	if (shapeTypes.length < 3) {
+		shapeTypes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
+	}
+	var random = Math.floor(Math.random() * shapeTypes.length);
 	var shape = new Shapes(shapeTypes[random]);
+	test.heldShapes.push(shapeTypes[random]);
+	shapeTypes.splice(random, 1);
+
 	drawNextPiece(shape.type);
 	return shape;
 }
@@ -465,6 +469,8 @@ function createPlayingField() {
 function restartGame() {
 	Shapes.prototype.updateRate = 100;
 	Shapes.prototype.storedPiece = undefined;
+
+	clearInterval(player.updateInterval);
 
 	menu.score = 0;
 	menu.level = 1;
@@ -516,6 +522,7 @@ function keyState(e) {
 	var keyCode = e.keyCode;
 	for (var action in actions) {
 		if (keyCode === actions[action].keyCode) {
+			console.log("YES");
 			actions[action].state = (e.type === "keydown") ? true: false;
 			e.preventDefault();
 		}
@@ -523,24 +530,20 @@ function keyState(e) {
 
 	if (actions.pause.state) {
 		menu.pause = !menu.pause;
+		if (menu.pause) {
+			var nextDisplay = undefined;
+			var holdDisplay = undefined;
+		} else {
+			var nextDisplay = nextPiece.type;
+			var holdDisplay = Shapes.storedPiece;
+		}
+		drawNextPiece(nextDisplay);
+		drawStoredShape(holdDisplay);		
 	}
 
 	if (actions.hold.state && player.hold) {
-		holdPiece();
-	}	
-	
-	/*if (actions.shiftLeft.state) {
-		console.log("LEFT");
-		player.shift(-1);	
-	}*/
-	/*if (actions.rotateRight.state && player.rotateOnce) {
-		player.rotate(1);
-	} else if (actions.rotateLeft.state && player.rotateOnce) {
-		player.rotate(-1);
-	} else if (actions.rotateRight.state === false && actions.rotateLeft.state === false) {
-		player.rotateOnce = true;
-	}*/	
-
+		holdPiece();				
+	}
 }
 
 // http://javascript.about.com/od/problemsolving/a/modulobug.htm

@@ -143,6 +143,7 @@ window.addEventListener("load", function() {
 	playAgainBtn = document.getElementById("playAgainBtn");
 	playAgainBtn.addEventListener("click", restartGame);
 
+	document.getElementById("new-game").addEventListener("click", restartGame);
 	document.getElementById("pause").addEventListener("click", pauseGame);
 	document.addEventListener("keydown", keyState);
 	document.addEventListener("keyup", keyState);
