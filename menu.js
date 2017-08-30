@@ -137,7 +137,7 @@ function initialiseGrid() {
 		if (column % 60 === 0) {
 			context.beginPath();
 			context.fillRect(column, 0, BLOCKLENGTH, gridCanvas.height);
-						context.closePath();	
+			context.closePath();	
 		}
 	}
 }
@@ -152,7 +152,11 @@ window.addEventListener("load", function() {
 	playAgainBtn = document.getElementById("playAgainBtn");
 	playAgainBtn.addEventListener("click", restartGame);
 
-	document.getElementById("new-game").addEventListener("click", restartGame);
+	document.getElementById("new-game").addEventListener("click", function() {
+		if (!menu.gameOver) {
+			restartGame();			
+		}
+	});
 	document.getElementById("pause").addEventListener("click", pauseGame);
 	document.addEventListener("keydown", keyState);
 	document.addEventListener("keyup", keyState);

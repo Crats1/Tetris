@@ -2,17 +2,11 @@
 TODO
 
 BUGS/ISSUES
--Fix game updating while paused
--Start game when game over
-	-Hold current piece
--Issues with hold function
--Pausing when game is over
 
 IMPROVE
--More responsive key presses
--Wall kick
 
 IMPLEMENT
+-Wall kick
 -2 block high buffer zone above ceiling
 -Ghost piece
 */
@@ -26,10 +20,12 @@ var playingField = createPlayingField();
 var shapeTypes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 var nextPiece;
 var player;
+var keyPressUpdateRate = 0;
 
 var actions = {
 	pause: {
 		state: false,
+		keyHeld: false,
 		keyCode: 27, // Esc
 	},
 	hold: {
@@ -258,6 +254,7 @@ Shapes.prototype.gravity = function() {
 		this.gravityRate = 0;
 	}
 	this.gravityRate++;
+	this.updatePlayingField();	
 };
 
 Shapes.prototype.hardDrop = function() {
@@ -276,6 +273,7 @@ Shapes.prototype.hardDrop = function() {
 			break;
 		}
 	}
+	this.updatePlayingField();	
 };
 
 Shapes.prototype.softDrop = function() {
@@ -288,6 +286,7 @@ Shapes.prototype.softDrop = function() {
 			this.blocks[i][1] += verticalShfit;	
 		}
 	}
+	this.updatePlayingField();	
 };
 
 Shapes.prototype.shift = function(units) {
@@ -300,6 +299,7 @@ Shapes.prototype.shift = function(units) {
 			this.blocks[i][0] += horizontalShift;	
 		}	
 	}
+	this.updatePlayingField();	
 };
 
 Shapes.prototype.rotate = function(units) {
@@ -326,6 +326,8 @@ Shapes.prototype.rotate = function(units) {
 		this.blocks[i][1] = newY;
 	}
 	Shapes.prototype.rotateOnce = false;
+	this.updatePlayingField();	
+	return true;
 };
 
 Shapes.prototype.updatePlayingField = function() {
@@ -348,33 +350,41 @@ Shapes.prototype.loseCondition = function() {
 	return false;
 };
 
-Shapes.prototype.updatePiece = function(keyPresses) {
-	if (keyPresses.shiftRight.state) {
-		this.shift(1);
-	} else if (keyPresses.shiftLeft.state) {
-		this.shift(-1);
-	}
-	
-	if (keyPresses.hardDrop.state && Shapes.prototype.dropHard) {	
-		this.hardDrop();
-	} else if (!keyPresses.hardDrop.state) {
+Shapes.prototype.defaultActions = function() {
+	if (!actions.hardDrop.state) {
 		Shapes.prototype.dropHard = true;
-	}
-
-	if (keyPresses.softDrop.state) {
-		this.softDrop();
-	} 
-	
-	if (keyPresses.rotateRight.state && Shapes.prototype.rotateOnce) {
-		this.rotate(1);
-	} else if (keyPresses.rotateLeft.state && Shapes.prototype.rotateOnce) {
-		this.rotate(-1);
-	} else if (!keyPresses.rotateRight.state && !keyPresses.rotateLeft.state) {
-		Shapes.prototype.rotateOnce = true;
 	}	
-	
-	this.gravity();
-	this.updatePlayingField();
+	if (!actions.rotateRight.state && !actions.rotateLeft.state) {
+		Shapes.prototype.rotateOnce = true;
+	}		
+};
+
+Shapes.prototype.updatePiece = function() {
+	if (!menu.pause && !menu.gameOver) {
+		if (actions.shiftRight.state) {
+			if (keyPressUpdateRate === 0)
+				this.shift(1);
+			keyPressUpdateRate = (keyPressUpdateRate + 1) % 7;
+		} else if (actions.shiftLeft.state) {
+			if (keyPressUpdateRate === 0)
+				this.shift(-1);
+			keyPressUpdateRate = (keyPressUpdateRate + 1) % 7;
+		}
+		
+		if (actions.softDrop.state) {
+			if (keyPressUpdateRate === 0)
+				this.softDrop();
+			keyPressUpdateRate = (keyPressUpdateRate + 1) % 7;
+		}
+		if (actions.rotateRight.state && Shapes.prototype.rotateOnce) {
+			this.rotate(0);
+		} else if (actions.rotateLeft.state && Shapes.prototype.rotateOnce) {
+			this.rotate(0);
+		}  	
+		if (actions.hardDrop.state && Shapes.prototype.dropHard) {	
+			this.hardDrop();
+		} 		
+	}	
 };
 
 function clearFilledLine() {
@@ -406,51 +416,57 @@ function clearFilledLine() {
 function holdPiece() {
 	// check if there is no piece held
 	if (!Shapes.prototype.storedPiece) {
-		var shape = nextPiece.type;
+		var currentPiece = nextPiece.type;
 		nextPiece = generatePiece();
 	} else {
-		var shape = Shapes.prototype.storedPiece;
+		var currentPiece = Shapes.prototype.storedPiece;
 	}
 
 	clearInterval(player.updateInterval);
+
 	Shapes.prototype.storedPiece = player.type;
 	Shapes.prototype.hold = false;	
+
 	player.removeFromPlayingField();
-	player = getNewPiece(shape);
+	player = getNewPiece(currentPiece);
 	drawStoredShape(Shapes.prototype.storedPiece);
-};
+}
 
 function generatePiece() {
 	if (shapeTypes.length < 3) {
 		shapeTypes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 	}
 	var random = Math.floor(Math.random() * shapeTypes.length);
-	var shape = new Shapes(shapeTypes[random]);
+	var generatedShape = new Shapes(shapeTypes[random]);
+
 	test.heldShapes.push(shapeTypes[random]);
+
 	shapeTypes.splice(random, 1);
 
-	drawNextPiece(shape.type);
-	return shape;
+	drawNextPiece(generatedShape.type);
+	return generatedShape;
 }
 
 function getNewPiece(type) {
-
-	// check if type in shapeTypes
-	if (shapeTypes.indexOf(type) !== -1) {
-		var shape = new Shapes(type);
+	// check if argument given is valid
+	if (['I', 'J', 'L', 'O', 'S', 'T', 'Z'].indexOf(type) !== -1) {
+		var currentShape = new Shapes(type);
 	} else {
-		var shape = nextPiece;
+		var currentShape = nextPiece;
 		nextPiece = generatePiece();
 	}
 
-	if (shape.loseCondition()) {
+	if (currentShape.loseCondition()) {
 		menu.gameOver = true;
 	} else {
-		shape.updateInterval = setInterval(function() { shape.updatePiece(actions) }, shape.updateRate); 
+		currentShape.updateInterval = setInterval(function() { 
+			currentShape.gravity() 
+		}, currentShape.updateRate); 
+		currentShape.updatePiece();
 	}
 	
 	
-	return shape;
+	return currentShape;
 }
 
 function createPlayingField() {
@@ -488,12 +504,14 @@ function restartGame() {
 }
 
 function render() {
-	// clear canvas to redraw
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.strokeStyle = "white";
+	player.defaultActions();
+	
 	if (menu.pause) {
 		menu.drawPauseMenu();
 	} else {
+		player.updatePiece();
 		for (var row = 0; row < playingField.length; row++) {
 			for (var column = 0; column < playingField[row].length; column++) {
 				// render block only when not empty
@@ -523,26 +541,26 @@ function keyState(e) {
 	var keyCode = e.keyCode;
 	for (var action in actions) {
 		if (keyCode === actions[action].keyCode) {
-			console.log("YES");
-			actions[action].state = (e.type === "keydown") ? true: false;
+			if (e.type === "keydown") {
+				actions[action].state = true;				
+			} else {
+				actions[action].state = false;
+				keyPressUpdateRate = 0;
+			}
+
+			// prevents browser from scrolling
 			e.preventDefault();
 		}
 	}
 
-	if (actions.pause.state) {
-		menu.pause = !menu.pause;
-		if (menu.pause) {
-			var nextDisplay = undefined;
-			var holdDisplay = undefined;
-		} else {
-			var nextDisplay = nextPiece.type;
-			var holdDisplay = Shapes.storedPiece;
-		}
-		drawNextPiece(nextDisplay);
-		drawStoredShape(holdDisplay);		
+	if (actions.pause.state && !menu.gameOver && !actions.pause.keyHeld) {
+		pauseGame();
+		actions.pause.keyHeld = true;
+	} else if (!actions.pause.state) {
+		actions.pause.keyHeld = false;
 	}
 
-	if (actions.hold.state && player.hold) {
+	if (actions.hold.state && player.hold && !menu.pause && !menu.gameOver) {
 		holdPiece();				
 	}
 }
