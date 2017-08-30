@@ -116,6 +116,15 @@ function changeCell(table, cells, colour) {
 
 function pauseGame() {
 	menu.pause = !menu.pause;
+	if (menu.pause) {
+		var nextDisplay = undefined;
+		var holdDisplay = undefined;
+	} else {
+		var nextDisplay = nextPiece.type;
+		var holdDisplay = Shapes.storedPiece;
+	}
+	drawNextPiece(nextDisplay);
+	drawStoredShape(holdDisplay);	
 }
 
 function initialiseGrid() {

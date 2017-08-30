@@ -13,6 +13,7 @@ IMPROVE
 -Wall kick
 
 IMPLEMENT
+-2 block high buffer zone above ceiling
 -Ghost piece
 */
 "use strict";
