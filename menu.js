@@ -133,26 +133,6 @@ function changeCell(table, cells, colour) {
 	}
 }
 
-function pauseGame() {
-	menu.pause = !menu.pause;
-	if (menu.pause) {
-		var nextDisplay = undefined;
-		var holdDisplay = undefined;
-		player.updateInterval = clearInterval(player.updateInterval);	
-	} else {
-		var nextDisplay = nextPiece.type;
-		var holdDisplay = Shapes.storedPiece;
-		if (!player.updateInterval) {
-			player.updateInterval = setInterval(function() { 
-				player.autoDrop() 
-			}, player.updateRate); 				
-		}
-		
-	}
-	drawNextPiece(nextDisplay);
-	drawStoredShape(holdDisplay);	
-}
-
 function createGrid() {
 	var gridCanvas = document.getElementById("grid");
 	var context = gridCanvas.getContext("2d");

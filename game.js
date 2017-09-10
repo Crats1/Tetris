@@ -7,7 +7,6 @@ IMPROVE
 
 IMPLEMENT
 -Start screen
--2 block high buffer zone above ceiling
 -Wall kick
 -Ghost piece
 */
@@ -49,7 +48,7 @@ function Shapes(type) {
 	this.stopRotating = true;
 	this.autoDropRate = 0;
 	this.center = [4, 1];
-	this.blocks = getStartingPositions(type);
+	this.blocks = getStartingPositions(type, 2);
 }
 
 Shapes.prototype.dropHard = true;
@@ -125,7 +124,7 @@ Shapes.prototype.detectBlockCollisions = function(block, horizontalShift, vertic
 	var yResultant = block[1] + verticalShfit;
 
 	// test side walls and ceiling first to prevent piece from locking on side wall
-	if (xResultant >= 10 || xResultant < 0 || yResultant < 0) {
+	if (xResultant >= playingField[0].length || xResultant < 0 || yResultant < 0) {
 		return false;
 	}
 
@@ -143,7 +142,7 @@ Shapes.prototype.detectBlockCollisions = function(block, horizontalShift, vertic
 	}
 
 	// test floor
-	if (yResultant > 19) {
+	if (yResultant > playingField.length - 1) {
 		return false;
 	}
 
@@ -337,14 +336,22 @@ Shapes.prototype.updatePiece = function() {
 	}		
 };
 
-function getStartingPositions(type) {
-	if (type === "I") return [[3, 0], [4, 0], [5, 0], [6, 0]];
-	else if (type === "J") return [[3, 0], [3, 1], [4, 1], [5, 1]];
-	else if (type === "L") return [[3, 1], [4, 1], [5, 1], [5, 0]];
-	else if (type === "O") return [[3, 0], [4, 0], [3, 1], [4, 1]];
-	else if (type === "S") return [[3, 1], [4, 1], [4, 0], [5, 0]];
-	else if (type === "T") return [[3, 1], [4, 1], [5, 1], [4, 0]];
-	else if (type === "Z") return [[3, 0], [4, 0], [4, 1], [5, 1]];
+function getStartingPositions(type, verticalShfit) {
+	var startingPosition;
+	if (type === "I") startingPosition = [[3, 0], [4, 0], [5, 0], [6, 0]];
+	else if (type === "J") startingPosition = [[3, 0], [3, 1], [4, 1], [5, 1]];
+	else if (type === "L") startingPosition = [[3, 1], [4, 1], [5, 1], [5, 0]];
+	else if (type === "O") startingPosition = [[3, 0], [4, 0], [3, 1], [4, 1]];
+	else if (type === "S") startingPosition = [[3, 1], [4, 1], [4, 0], [5, 0]];
+	else if (type === "T") startingPosition = [[3, 1], [4, 1], [5, 1], [4, 0]];
+	else if (type === "Z") startingPosition = [[3, 0], [4, 0], [4, 1], [5, 1]];
+	
+	if (verticalShfit) {
+		for (var i = 0; i < startingPosition.length; i++) {
+			startingPosition[i][1] += verticalShfit;
+		}
+	}
+	return startingPosition;
 }
 
 function clearFilledLine() {
@@ -416,8 +423,8 @@ function initialiseNewPiece(type) {
 		nextPiece = generatePiece();
 	}
 
-	if (currentShape.isGameOver()) {
-		menu.gameOver = true;
+	if (!canShiftUp(currentShape)) {
+		menu.gameOver = true;			
 	} else {
 		currentShape.updateInterval = setInterval(function() { 
 			currentShape.autoDrop() 
@@ -429,9 +436,22 @@ function initialiseNewPiece(type) {
 	return currentShape;
 }
 
+function canShiftUp(piece) {
+	if (piece.isGameOver()) {
+		piece.blocks = getStartingPositions(piece.type, 1);
+		if (piece.isGameOver()) {
+			piece.blocks = getStartingPositions(piece.type, 0);
+			if (piece.isGameOver()) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 function createPlayingField() {
 	var width = 10;
-	var height = 20;
+	var height = 22;
 	var newPlayingField = [];
 	for (var i = 0; i < height; i++) {
 		var row = [];
@@ -469,6 +489,26 @@ function restartGame() {
 	drawNextPiece(nextPiece.type);
 }
 
+function pauseGame() {
+	menu.pause = !menu.pause;
+	if (menu.pause) {
+		var nextDisplay = undefined;
+		var holdDisplay = undefined;
+		player.updateInterval = clearInterval(player.updateInterval);	
+	} else {
+		var nextDisplay = nextPiece.type;
+		var holdDisplay = Shapes.storedPiece;
+		if (!player.updateInterval) {
+			player.updateInterval = setInterval(function() { 
+				player.autoDrop() 
+			}, player.updateRate); 				
+		}
+		
+	}
+	drawNextPiece(nextDisplay);
+	drawStoredShape(holdDisplay);	
+}
+
 function render() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.strokeStyle = "white";
@@ -479,12 +519,12 @@ function render() {
 		menu.drawGameOverMenu();
 	} else {
 		player.updatePiece();
-		for (var row = 0; row < playingField.length; row++) {
+		for (var row = 2; row < playingField.length; row++) {
 			for (var column = 0; column < playingField[row].length; column++) {
 				// render block only when not empty
 				if (playingField[row][column]) {
 					var x = column * BLOCKLENGTH;
-					var y = row * BLOCKLENGTH;
+					var y = row * BLOCKLENGTH - 2 * BLOCKLENGTH;
 					var colour = playingField[row][column];
 
 					ctx.beginPath();
