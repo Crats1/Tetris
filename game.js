@@ -25,42 +25,22 @@ var nextPiece;
 var player;
 var shapeTypes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 
-var actions = {
-	pause: {
-		state: false,
-		keyHeld: false,
-		keyCode: 27, // Esc
-	},
-	hold: {
-		state: false,
-		keyCode: 67, // c
-	},	
-	shiftLeft: {
-		state: false,
-		keyCode: 37, // left arrow
-	},
-	shiftRight: {
-		state: false,
-		keyCode: 39, // row arrow
-	},	
-	rotateRight: {
-		state: false,
-		keyCode: 38, // up arrow
-	},
-	rotateLeft: {
-		state: false,
-		keyCode: 90, // z
-	},
-	softDrop: {
-		state: false,
-		keyCode: 40, // down arrow
-	},
-	hardDrop: {
-		state: false,
-		keyCode: 32, // space bar
-	},
+var actions = {};
+actions.pause = new defaultKeyProperties(27, "pause"); // Esc
+actions.hold = new defaultKeyProperties(67); // c
+actions.shiftLeft = new defaultKeyProperties(37); // left arrow
+actions.shiftRight = new defaultKeyProperties(39); // right arrow
+actions.rotateRight = new defaultKeyProperties(38); // up arrow
+actions.rotateLeft = new defaultKeyProperties(90); // z
+actions.softDrop = new defaultKeyProperties(40); // down arrow
+actions.hardDrop = new defaultKeyProperties(32); // space bar
 
-};
+function defaultKeyProperties(code, action) {
+	this.keyCode = code;
+	this.state = false;
+	if (action === "pause")
+		this.keyHeld = false;
+}
 
 function Shapes(type) {
 	this.type = type;
@@ -198,7 +178,7 @@ Shapes.prototype.lockPiece = function(lockDelay) {
 		}
 		Shapes.prototype.hold = true;
 		clearFilledLine();
-		clearInterval(player.updateInterval);
+		player.updateInterval = clearInterval(player.updateInterval);
 		player = initialiseNewPiece();
 				
 	}
@@ -399,7 +379,7 @@ function holdPiece() {
 		var currentPiece = Shapes.prototype.storedPiece;
 	}
 
-	clearInterval(player.updateInterval);
+	player.updateInterval = clearInterval(player.updateInterval);
 
 	Shapes.prototype.storedPiece = player.type;
 	Shapes.prototype.hold = false;	

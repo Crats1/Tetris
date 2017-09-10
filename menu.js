@@ -195,5 +195,4 @@ window.addEventListener("load", function() {
 	initialiseGame();
 	createGrid();
 	render();
-	//test.fillUpPlayingField(10);
 });
