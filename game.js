@@ -26,16 +26,16 @@ var player;
 var shapeTypes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 
 var actions = {};
-actions.pause = new defaultKeyProperties(27, "pause"); // Esc
-actions.hold = new defaultKeyProperties(67); // c
-actions.shiftLeft = new defaultKeyProperties(37); // left arrow
-actions.shiftRight = new defaultKeyProperties(39); // right arrow
-actions.rotateRight = new defaultKeyProperties(38); // up arrow
-actions.rotateLeft = new defaultKeyProperties(90); // z
-actions.softDrop = new defaultKeyProperties(40); // down arrow
-actions.hardDrop = new defaultKeyProperties(32); // space bar
+actions.pause = new defaultActionProperties(27, "pause"); // Esc
+actions.hold = new defaultActionProperties(67); // c
+actions.shiftLeft = new defaultActionProperties(37); // left arrow
+actions.shiftRight = new defaultActionProperties(39); // right arrow
+actions.rotateRight = new defaultActionProperties(38); // up arrow
+actions.rotateLeft = new defaultActionProperties(90); // z
+actions.softDrop = new defaultActionProperties(40); // down arrow
+actions.hardDrop = new defaultActionProperties(32); // space bar
 
-function defaultKeyProperties(code, action) {
+function defaultActionProperties(code, action) {
 	this.keyCode = code;
 	this.state = false;
 	if (action === "pause")
@@ -52,10 +52,10 @@ function Shapes(type) {
 	this.blocks = getStartingPositions(type);
 }
 
-Shapes.prototype.updateRate = 100;
-Shapes.prototype.hold = true;
 Shapes.prototype.dropHard = true;
+Shapes.prototype.hold = true;
 Shapes.prototype.storedPiece;
+Shapes.prototype.updateRate = 100;
 
 function defaultShapeProperties(colour, xCoord, yCoord) {
 	this.colour = colour;
@@ -134,7 +134,7 @@ Shapes.prototype.detectBlockCollisions = function(block, horizontalShift, vertic
 
 		// if block is in undefined position or a shape is already there
 		if (typeof playingField[yResultant] === "undefined" || playingField[yResultant][xResultant] !== 0) {
-			if (!this.locking && this.lockable()) {
+			if (!this.locking && this.isLockable()) {
 				this.lockPiece(300);
 			}
 
@@ -185,7 +185,7 @@ Shapes.prototype.lockPiece = function(lockDelay) {
 	window.setTimeout(canLock, lockDelay);
 };
 
-Shapes.prototype.lockable = function() {
+Shapes.prototype.isLockable = function() {
 	for (var i = 0; i < this.blocks.length; i++) {
 		var xCoord = this.blocks[i][0];
 		var yCoord = this.blocks[i][1] + 1;
@@ -317,15 +317,18 @@ Shapes.prototype.updatePiece = function() {
 				this.softDrop();
 			keyPressUpdateRate = (keyPressUpdateRate + 1) % SHAPEUPDATERATE;
 		}
+
 		if (actions.rotateRight.state && Shapes.prototype.rotateOnce) {
 			this.rotate(1);
 		} else if (actions.rotateLeft.state && Shapes.prototype.rotateOnce) {
 			this.rotate(-1);
 		}  	
+
 		if (actions.hardDrop.state && Shapes.prototype.dropHard) {	
 			this.hardDrop();
 		} 		
 	}	
+
 	if (!actions.hardDrop.state) {
 		Shapes.prototype.dropHard = true;
 	}	
