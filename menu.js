@@ -16,21 +16,37 @@ var menu = {
 	},
 	drawGameOverMenu: function() {
 		var text = "GAME OVER";
-		var width = ctx.measureText(text).width;
+		var textWidth = ctx.measureText(text).width;
+		var textX = (canvas.width / 2) - (textWidth / 2);
+		var textY = canvas.height / 2 - 30;
+
+		var backgroundX = textX - 15;
+		var backgroundY = textY - 50;
+		var backgroundWidth = textWidth + 30;
+		var backgroundHeight = 150;
 
 		ctx.beginPath();
 		ctx.fillStyle = "black";
+		ctx.globalAlpha = 0.5;
+		ctx.fillRect(backgroundX, backgroundY, backgroundWidth, backgroundHeight);
+		ctx.globalAlpha = 1;	
+
+		ctx.fillStyle = "#efefef";
 		ctx.font = "40px arial";
-		ctx.fillText(text, (canvas.width / 2) - (width / 2), canvas.height / 2 - 30);
+		ctx.fillText(text, textX, textY);	
 		ctx.closePath();
 		document.getElementById("playAgainBtn").style.display = "block";
 	},
 	drawPauseMenu: function() {
+		var text = "PAUSED";
+		var textWidth = ctx.measureText(text).width;
+		var textX = (canvas.width / 2) - (textWidth / 2);
+		var textY = canvas.height / 2;
+
 		ctx.beginPath();
 		ctx.fillStyle = "black";
 		ctx.font = "40px arial";
-
-		ctx.fillText("GAME PAUSED", 0, canvas.height / 2);	
+		ctx.fillText(text, textX, textY);	
 		ctx.closePath();
 	}
 };
@@ -108,11 +124,10 @@ function drawStoredShape(shape) {
 }
 
 function changeCell(table, cells, colour) {
-	// clears table first
+	// clears table before applying changes to table
 	for (var i = 0; i < table.length; i++) {
 		table[i].style["background-color"] = "white";
 	}
-	// applies changes to table
 	for (var i = 0; i < cells.length; i++) {
 		table[cells[i]].style["background-color"] = colour;
 	}
@@ -123,9 +138,16 @@ function pauseGame() {
 	if (menu.pause) {
 		var nextDisplay = undefined;
 		var holdDisplay = undefined;
+		player.updateInterval = clearInterval(player.updateInterval);	
 	} else {
 		var nextDisplay = nextPiece.type;
 		var holdDisplay = Shapes.storedPiece;
+		if (!player.updateInterval) {
+			player.updateInterval = setInterval(function() { 
+				player.autoDrop() 
+			}, player.updateRate); 				
+		}
+		
 	}
 	drawNextPiece(nextDisplay);
 	drawStoredShape(holdDisplay);	
@@ -162,8 +184,8 @@ function initialiseGame() {
 		}
 	});
 	document.getElementById("pause").addEventListener("click", pauseGame);
-	document.addEventListener("keydown", keyState);
-	document.addEventListener("keyup", keyState);
+	document.addEventListener("keydown", keyHandler);
+	document.addEventListener("keyup", keyHandler);
 
 	nextPiece = generatePiece();
 	player = initialiseNewPiece();
@@ -173,4 +195,5 @@ window.addEventListener("load", function() {
 	initialiseGame();
 	createGrid();
 	render();
+	//test.fillUpPlayingField(10);
 });

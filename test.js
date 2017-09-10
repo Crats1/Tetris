@@ -1,6 +1,6 @@
 var test = {
 	heldShapes: [],
-	renderTest: function() {
+	render: function() {
 		// I
 		playingField[0][0] = "cyan";
 		playingField[0][1] = "cyan";
@@ -27,7 +27,7 @@ var test = {
 		playingField[2][5] = "blue";
 		playingField[2][6] = "cyan";
 	},
-	lineClearTest: function() {
+	lineClear: function() {
 		// creates a 4 X 9 high blockField in playingField
 		for (var i = 0; i < 9; i++) {
 			playingField[16][i] = "red";
@@ -36,23 +36,26 @@ var test = {
 			playingField[19][i] = "red";
 		}	
 	},
-	loseConditionTest: function() {
+	fillUpPlayingField: function(height) {
 		// fills up playingField close to top
-		for (var i = 8; i < playingField.length; i++) {
-			for (var j = 0 ; j < playingField[i].length - 1; j++) {
-				playingField[i][j] = "red";
+		for (var row = playingField.length % height; row < playingField.length; row++) {
+			for (var column = 0; column < playingField[row].length - 1; column++) {
+				playingField[row][column] = "red";
 			}
 		}
 	},
-	spawnAlgorithmTest: function(range) {
+	spawnAlgorithm: function(range) {
 		// finds number of same types within range
 		var current;
+		var duplicates = 0;
 		for (var i = 0; i < this.heldShapes.length; i++) {
 			if (i % range === 0) {
 				current = this.heldShapes[i];
 			} else if (this.heldShapes[i] === current) {
 				console.log("Duplicate");
+				duplicates++;
 			}
 		}
+		console.log("COUNT: ", duplicates);
 	},
 };

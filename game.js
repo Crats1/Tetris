@@ -2,7 +2,6 @@
 TODO
 
 BUGS/ISSUES
--Stop autoDrop when paused
 
 IMPROVE
 
@@ -274,10 +273,10 @@ Shapes.prototype.shiftHorizontally = function(units) {
 	this.updatePlayingField();	
 };
 
-Shapes.prototype.rotate = function(units) {
+Shapes.prototype.rotate = function(direction) {
 	var type = this.type;
 	var length = this[type].rotationCoordinateX.length;
-	var newIndex = (this.rotationIndex + units).mod(length); // see bottom of file
+	var newIndex = (this.rotationIndex + direction).mod(length);
 	for (var i = 0; i < this.blocks.length; i++) {
 		var offsetX = this[type].rotationCoordinateX[newIndex][i];
 		var offsetY = this[type].rotationCoordinateY[newIndex][i];
@@ -310,7 +309,7 @@ Shapes.prototype.updatePlayingField = function() {
 	}
 };
 
-Shapes.prototype.gameOver = function() {
+Shapes.prototype.isGameOver = function() {
 	for (var i = 0; i < this.blocks.length; i++) {
 		var xCoord = this.blocks[i][0];
 		var yCoord = this.blocks[i][1];
@@ -434,7 +433,7 @@ function initialiseNewPiece(type) {
 		nextPiece = generatePiece();
 	}
 
-	if (currentShape.gameOver()) {
+	if (currentShape.isGameOver()) {
 		menu.gameOver = true;
 	} else {
 		currentShape.updateInterval = setInterval(function() { 
@@ -467,7 +466,7 @@ function restartGame() {
 	Shapes.prototype.storedPiece = undefined;
 	Shapes.prototype.updateRate = 100;
 
-	clearInterval(player.updateInterval);
+	player.updateInterval = clearInterval(player.updateInterval);
 
 	menu.score = 0;
 	menu.level = 1;
@@ -493,6 +492,8 @@ function render() {
 	
 	if (menu.pause) {
 		menu.drawPauseMenu();
+	} else if (menu.gameOver) {
+		menu.drawGameOverMenu();
 	} else {
 		player.updatePiece();
 		for (var row = 0; row < playingField.length; row++) {
@@ -503,7 +504,6 @@ function render() {
 					var y = row * BLOCKLENGTH;
 					var colour = playingField[row][column];
 
-					ctx.clearRect(x, y, BLOCKLENGTH, BLOCKLENGTH)
 					ctx.beginPath();
 					ctx.fillStyle = colour;
 					ctx.fillRect(x, y, BLOCKLENGTH, BLOCKLENGTH);
@@ -513,14 +513,11 @@ function render() {
 				}
 			}
 		}
-	}
-	if (menu.gameOver) {
-		menu.drawGameOverMenu();
-	}		
+	}	
 	requestAnimationFrame(render);
 }
 
-function keyState(e) {
+function keyHandler(e) {
 	var keyCode = e.keyCode;
 	for (var action in actions) {
 		if (keyCode === actions[action].keyCode) {
