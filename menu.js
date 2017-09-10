@@ -37,9 +37,11 @@ var menu = {
 
 function createTable(element) {
 	var table = document.getElementById(element);
-	for (var i = 0; i < 2; i++) {
+	var height = 2;
+	var width = 4;
+	for (var i = 0; i < height; i++) {
 		var row = document.createElement("tr");
-		for (var j = 0; j < 4; j++) {
+		for (var j = 0; j < width; j++) {
 			var cell = document.createElement("td");
 			cell.id = i.toString() + j.toString();
 			row.appendChild(cell);
@@ -106,9 +108,11 @@ function drawStoredShape(shape) {
 }
 
 function changeCell(table, cells, colour) {
+	// clears table first
 	for (var i = 0; i < table.length; i++) {
 		table[i].style["background-color"] = "white";
 	}
+	// applies changes to table
 	for (var i = 0; i < cells.length; i++) {
 		table[cells[i]].style["background-color"] = colour;
 	}
@@ -127,7 +131,7 @@ function pauseGame() {
 	drawStoredShape(holdDisplay);	
 }
 
-function initialiseGrid() {
+function createGrid() {
 	var gridCanvas = document.getElementById("grid");
 	var context = gridCanvas.getContext("2d");
 	context.strokeStyle = "red";
@@ -142,7 +146,7 @@ function initialiseGrid() {
 	}
 }
 
-window.addEventListener("load", function() {
+function initialiseGame() {
 	canvas = document.getElementById("canvas");
 	ctx = canvas.getContext("2d")
 
@@ -162,8 +166,11 @@ window.addEventListener("load", function() {
 	document.addEventListener("keyup", keyState);
 
 	nextPiece = generatePiece();
-	player = getNewPiece();
+	player = initialiseNewPiece();
+}
 
-	initialiseGrid();
+window.addEventListener("load", function() {
+	initialiseGame();
+	createGrid();
 	render();
 });

@@ -28,6 +28,7 @@ var test = {
 		playingField[2][6] = "cyan";
 	},
 	lineClearTest: function() {
+		// creates a 4 X 9 high blockField in playingField
 		for (var i = 0; i < 9; i++) {
 			playingField[16][i] = "red";
 			playingField[17][i] = "red";
@@ -36,9 +37,21 @@ var test = {
 		}	
 	},
 	loseConditionTest: function() {
+		// fills up playingField close to top
 		for (var i = 8; i < playingField.length; i++) {
 			for (var j = 0 ; j < playingField[i].length - 1; j++) {
 				playingField[i][j] = "red";
+			}
+		}
+	},
+	spawnAlgorithmTest: function(range) {
+		// finds number of same types within range
+		var current;
+		for (var i = 0; i < this.heldShapes.length; i++) {
+			if (i % range === 0) {
+				current = this.heldShapes[i];
+			} else if (this.heldShapes[i] === current) {
+				console.log("Duplicate");
 			}
 		}
 	},
