@@ -52,15 +52,18 @@ function musicToggle() {
     if (!musicOn) {
     	sounds.music.play();
         musicOn = true;
-        musicToggleBtn.value = "Turn music Off";
+        musicToggleBtn.value = "Turn Music Off";
     } else {
     	sounds.music.pause();
         musicOn = false;
-        musicToggleBtn.value = "Enable music";
+        musicToggleBtn.value = "Enable Music";
     }
 }
 
 function resetMusic() {
-	sounds.music.currentTime = 0;
+	sounds.music.currentTime = 0;	
+	musicOn = true;
+	musicToggleBtn = "Turn Music Off"
 	sounds.music.play();
+
 }

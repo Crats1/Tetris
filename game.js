@@ -1,13 +1,3 @@
-/*
-TODO
-
-BUGS/ISSUES
-
-IMPROVE
-
-IMPLEMENT
--Ghost piece
-*/
 "use strict";
 var BLOCKLENGTH = 30;
 var SHAPEUPDATERATE = 7;
@@ -428,7 +418,7 @@ function initialiseNewPiece(type) {
 
 	if (!canShiftUp(currentShape)) {
 		menu.gameOver = true;	
-		sounds.music.pause();
+		musicToggle();
 		sounds.gameOver.play();		
 	} else {
 		currentShape.updateInterval = setInterval(function() { 
