@@ -32,7 +32,7 @@ var menu = {
 
 		ctx.beginPath();
 		ctx.fillStyle = "black";
-		ctx.globalAlpha = 0.5;
+		ctx.globalAlpha = 0.8;
 		ctx.fillRect(backgroundX, backgroundY, backgroundWidth, backgroundHeight);
 		ctx.globalAlpha = 1;	
 
