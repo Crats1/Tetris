@@ -9,7 +9,6 @@ IMPLEMENT
 -Ghost piece
 */
 "use strict";
-
 var BLOCKLENGTH = 30;
 var SHAPEUPDATERATE = 7;
 
@@ -252,18 +251,20 @@ Shapes.prototype.rotate = function(direction, horizontalOffset) {
 	var type = this.type;
 	var length = this[type].rotationCoordinateX.length;
 	var newIndex = (this.rotationIndex + direction).mod(length);
+
+	// check if rotated piece may be colliding
 	for (var i = 0; i < this.blocks.length; i++) {
 		var offsetX = this[type].rotationCoordinateX[newIndex][i] + horizontalOffset;
 		var offsetY = this[type].rotationCoordinateY[newIndex][i];
 		
-		// check if rotated block may have a collision
 		if (!this.detectBlockCollisions(this.center, offsetX, offsetY)) {
 			return false;
 		}
 	}
+
+	// rotate the shape
 	this.removeFromPlayingField();
 	this.rotationIndex = newIndex;
-	this.center[0] += horizontalOffset;
 	for (var i = 0; i < this.blocks.length; i++) {
 		var newX = this.center[0] + this[type].rotationCoordinateX[newIndex][i] + horizontalOffset;
 		this.blocks[i][0] = newX;
@@ -271,9 +272,9 @@ Shapes.prototype.rotate = function(direction, horizontalOffset) {
 		var newY = this.center[1] + this[type].rotationCoordinateY[newIndex][i];
 		this.blocks[i][1] = newY;
 	}
+	this.center[0] += horizontalOffset;
 	Shapes.prototype.rotateOnce = false;
 	this.updatePlayingField();	
-
 	return true;
 };
 
@@ -450,10 +451,10 @@ function initialiseNewPiece(type) {
 function canShiftUp(piece) {
 	if (piece.isGameOver()) {
 		piece.blocks = getStartingPositions(piece.type, 1);
-		piece.center[1] += 1;
+		piece.center[1]--;
 		if (piece.isGameOver()) {
 			piece.blocks = getStartingPositions(piece.type, 0);
-			piece.center[1] += 1;
+			piece.center[1]--;
 			if (piece.isGameOver()) {
 				return false;
 			}
@@ -551,7 +552,6 @@ function render() {
 	} else {
 		player.updatePiece();
 		drawPlayingField();
-
 	}	
 	if (menu.gameOver) {
 		menu.drawGameOverMenu();
