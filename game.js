@@ -38,7 +38,7 @@ function defaultActionProperties(code, action) {
 		this.keyHeld = false;
 }
 
-function Shapes(type) {
+function Shape(type) {
 	this.type = type;
 	this.rotationIndex = 0;
 	this.locking = false;
@@ -48,10 +48,10 @@ function Shapes(type) {
 	this.blocks = getStartingPositions(type, 2);
 }
 
-Shapes.prototype.dropHard = true;
-Shapes.prototype.hold = true;
-Shapes.prototype.storedPiece;
-Shapes.prototype.updateRate = 100;
+Shape.prototype.dropHard = true;
+Shape.prototype.hold = true;
+Shape.prototype.storedPiece;
+Shape.prototype.updateRate = 100;
 
 function defaultShapeProperties(colour, xCoord, yCoord) {
 	this.colour = colour;
@@ -59,43 +59,43 @@ function defaultShapeProperties(colour, xCoord, yCoord) {
 	this.rotationCoordinateY = yCoord;
 }
 
-// coordinates of all possible rotation positions of each block relative to center
-Shapes.prototype.I = new defaultShapeProperties("cyan", 
+// coordinates of all possible rotation positions of each block relative to centre
+Shape.prototype.I = new defaultShapeProperties("cyan", 
 	[[-2, -1, 0, 1], [0, 0, 0, 0], [-2, -1, 0, 1], [-1, -1, -1, -1]],
 	[[-1, -1, -1, -1], [-2, -1, 0, 1], [0, 0, 0 , 0], [-2, -1, 0, 1]]
 );
 
-Shapes.prototype.J = new defaultShapeProperties("blue",
+Shape.prototype.J = new defaultShapeProperties("blue",
 	[[-1, -1, 1, 0], [1, 0, 0, 0], [1, 1, -1, 0], [-1, 0, 0, 0]],
 	[[-1, 0, 0, 0], [-1, -1, 1, 0], [1, 0, 0, 0], [1, 1, -1, 0]]
 );
 
-Shapes.prototype.L = new defaultShapeProperties("orange",
+Shape.prototype.L = new defaultShapeProperties("orange",
 	[[-1, 1, 1, 0], [0, 0, 1, 0], [1, -1, -1, 0], [0, 0, -1, 0]],
 	[[0, 0, -1, 0], [-1, 1, 1, 0], [0, 0, 1, 0], [1, -1, -1, 0]]
 );
 
-Shapes.prototype.O = new defaultShapeProperties("yellow",
+Shape.prototype.O = new defaultShapeProperties("yellow",
 	[[-1, -1, 0, 0]],
 	[[-1, 0, -1, 0]]
 );
 
-Shapes.prototype.S = new defaultShapeProperties("green",
+Shape.prototype.S = new defaultShapeProperties("green",
 	[[-1, 0, 1, 0], [0, 1, 1, 0], [-1, 0, 1, 0], [-1, -1, 0, 0]],
 	[[0, -1, -1, 0], [-1, 0, 1, 0], [1, 1, 0, 0], [-1, 0, 1, 0]]
 );
 
-Shapes.prototype.T = new defaultShapeProperties("purple",
+Shape.prototype.T = new defaultShapeProperties("purple",
 	[[-1, 0, 1, 0], [0, 1, 0, 0], [1, 0, -1, 0], [0, -1, 0, 0]],
 	[[0, -1, 0, 0], [-1, 0, 1, 0], [0, 1, 0, 0], [1, 0, -1, 0]]
 );
 
-Shapes.prototype.Z = new defaultShapeProperties("red",
+Shape.prototype.Z = new defaultShapeProperties("red",
 	[[-1, 0, 1, 0], [1, 1, 0, 0], [1, 0, -1, 0], [-1, -1, 0, 0]],
 	[[-1, -1, 0, 0], [-1, 0, 1, 0], [1, 1, 0, 0], [1, 0, -1, 0]]
 );
 
-Shapes.prototype.removeFromPlayingField = function() {
+Shape.prototype.clearFromPlayingField = function() {
 	for (var i = 0; i < this.blocks.length; i++) {
 		var x = this.blocks[i][0];
 		var y = this.blocks[i][1];
@@ -103,52 +103,43 @@ Shapes.prototype.removeFromPlayingField = function() {
 	}	
 };
 
-// test whole piece for any collisions
-Shapes.prototype.detectPieceCollisions = function(horizontalShift, verticalShfit) {
-	// return true only when no collisions are detected
+Shape.prototype.isPieceColliding = function(horizontalShift, verticalShfit) {
 	var blocks = this.blocks;
 	for (var i = 0; i < blocks.length; i++) {
-		if (!this.detectBlockCollisions(blocks[i], horizontalShift, verticalShfit)) {	
-			return false;
+		if (this.isBlockColliding(blocks[i], horizontalShift, verticalShfit)) {	
+			return true;
 		}
 	}
-	return true;
+	return false;
 };
 
-// tests individual blocks with its shift for collisions
-Shapes.prototype.detectBlockCollisions = function(block, horizontalShift, verticalShfit) {
+Shape.prototype.isBlockColliding = function(block, horizontalShift, verticalShfit) {
 	var xResultant = block[0] + horizontalShift;
 	var yResultant = block[1] + verticalShfit;
 
 	// test side walls and ceiling first to prevent piece from locking on side wall
 	if (xResultant >= playingField[0].length || xResultant < 0 || yResultant < 0) {
-		return false;
+		return true;
 	}
 
-	// if resultant is not a block in player
-	if (!this.collidingWithPlayerBlocks(xResultant, yResultant)) {
-
-		// if block is in undefined position or a shape is already there
+	if (!this.isCollidingWithPlayerBlocks(xResultant, yResultant)) {
 		if (typeof playingField[yResultant] === "undefined" || playingField[yResultant][xResultant] !== 0) {
 			if (!this.locking && this.isLockable()) {
 				this.lockPiece(300);
 			}
 
-			return false;
+			return true;
 		}
 	}
 
-	// test floor
 	if (yResultant > playingField.length - 1) {
-		return false;
+		return true;
 	}
 
-	// no collisions detected
-	return true;
+	return false;
 };
 
-// return true when coordinates are colliding with player
-Shapes.prototype.collidingWithPlayerBlocks = function(xCoord, yCoord) {
+Shape.prototype.isCollidingWithPlayerBlocks = function(xCoord, yCoord) {
 	for (var i = 0;  i < this.blocks.length; i++) {
 		if (xCoord === this.blocks[i][0] && yCoord === this.blocks[i][1]) {
 			return true;
@@ -157,7 +148,7 @@ Shapes.prototype.collidingWithPlayerBlocks = function(xCoord, yCoord) {
 	return false;
 };
 
-Shapes.prototype.lockPiece = function(lockDelay) {
+Shape.prototype.lockPiece = function(lockDelay) {
 	this.locking = true;
 	// copy blocks array
 	var initialPosition = this.blocks.map(function(arr) {
@@ -172,8 +163,8 @@ Shapes.prototype.lockPiece = function(lockDelay) {
 				return false;
 			}
 		}
-		Shapes.prototype.hold = true;
-		clearFilledLine();
+		Shape.prototype.hold = true;
+		removeFilledLine();
 		player.updateInterval = clearInterval(player.updateInterval);
 		player = initialiseNewPiece();
 				
@@ -181,11 +172,11 @@ Shapes.prototype.lockPiece = function(lockDelay) {
 	window.setTimeout(canLock, lockDelay);
 };
 
-Shapes.prototype.isLockable = function() {
+Shape.prototype.isLockable = function() {
 	for (var i = 0; i < this.blocks.length; i++) {
 		var xCoord = this.blocks[i][0];
 		var yCoord = this.blocks[i][1] + 1;
-		if (!this.collidingWithPlayerBlocks(xCoord, yCoord)) {
+		if (!this.isCollidingWithPlayerBlocks(xCoord, yCoord)) {
 			if (typeof playingField[yCoord] === "undefined" || playingField[yCoord][xCoord] !== 0) {
 				return true;
 			} 
@@ -194,22 +185,22 @@ Shapes.prototype.isLockable = function() {
 	return false;
 };
 
-Shapes.prototype.autoDrop = function() {
+Shape.prototype.autoDrop = function() {
 	var autoDropLimit = this.updateRate / 10;
 	if (this.autoDropRate >= autoDropLimit) {
 		this.softDrop();
 		this.autoDropRate = 0;
 	}
 	this.autoDropRate++;
-	this.updatePlayingField();	
+	this.insertIntoPlayingField();	
 };
 
-Shapes.prototype.hardDrop = function() {
-	Shapes.prototype.dropHard = false;
+Shape.prototype.hardDrop = function() {
+	Shape.prototype.dropHard = false;
 	for (var i = 0; i < playingField.length; i++) {
 		// if collision found, stop and lock piece here
-		if (!this.detectPieceCollisions(0, i)) {
-			this.removeFromPlayingField();
+		if (this.isPieceColliding(0, i)) {
+			this.clearFromPlayingField();
 
 			var verticalShfit = i - 1;			
 			for (var j = 0; j < this.blocks.length; j++) {
@@ -220,34 +211,34 @@ Shapes.prototype.hardDrop = function() {
 			break;
 		}
 	}
-	this.updatePlayingField();	
+	this.insertIntoPlayingField();	
 };
 
-Shapes.prototype.softDrop = function() {
+Shape.prototype.softDrop = function() {
 	var verticalShfit = 1;
 
-	if (this.detectPieceCollisions(0, verticalShfit)) {
-		this.removeFromPlayingField();
+	if (!this.isPieceColliding(0, verticalShfit)) {
+		this.clearFromPlayingField();
 		this.center[1] += verticalShfit;
 		for (var i = 0; i < this.blocks.length; i++) {
 			this.blocks[i][1] += verticalShfit;	
 		}
 	}
-	this.updatePlayingField();	
+	this.insertIntoPlayingField();	
 };
 
-Shapes.prototype.shiftHorizontally = function(horizontalShift) {
-	if (this.detectPieceCollisions(horizontalShift, 0)) {
-		this.removeFromPlayingField();
+Shape.prototype.shiftHorizontally = function(horizontalShift) {
+	if (!this.isPieceColliding(horizontalShift, 0)) {
+		this.clearFromPlayingField();
 		this.center[0] += horizontalShift;
 		for (var i = 0; i < this.blocks.length; i++) {
 			this.blocks[i][0] += horizontalShift;	
 		}	
 	}
-	this.updatePlayingField();	
+	this.insertIntoPlayingField();	
 };
 
-Shapes.prototype.rotate = function(direction, horizontalOffset) {
+Shape.prototype.rotate = function(direction, horizontalOffset) {
 	var type = this.type;
 	var length = this[type].rotationCoordinateX.length;
 	var newIndex = (this.rotationIndex + direction).mod(length);
@@ -257,13 +248,13 @@ Shapes.prototype.rotate = function(direction, horizontalOffset) {
 		var offsetX = this[type].rotationCoordinateX[newIndex][i] + horizontalOffset;
 		var offsetY = this[type].rotationCoordinateY[newIndex][i];
 		
-		if (!this.detectBlockCollisions(this.center, offsetX, offsetY)) {
+		if (this.isBlockColliding(this.center, offsetX, offsetY)) {
 			return false;
 		}
 	}
 
 	// rotate the shape
-	this.removeFromPlayingField();
+	this.clearFromPlayingField();
 	this.rotationIndex = newIndex;
 	for (var i = 0; i < this.blocks.length; i++) {
 		var newX = this.center[0] + this[type].rotationCoordinateX[newIndex][i] + horizontalOffset;
@@ -273,12 +264,12 @@ Shapes.prototype.rotate = function(direction, horizontalOffset) {
 		this.blocks[i][1] = newY;
 	}
 	this.center[0] += horizontalOffset;
-	Shapes.prototype.rotateOnce = false;
-	this.updatePlayingField();	
+	Shape.prototype.rotateOnce = false;
+	this.insertIntoPlayingField();	
 	return true;
 };
 
-Shapes.prototype.wallKick = function(direction) {
+Shape.prototype.wallKick = function(direction) {
 	if (!this.rotate(direction, 1)) {
 		if (!this.rotate(direction, -1)) {
 			return false;
@@ -287,7 +278,7 @@ Shapes.prototype.wallKick = function(direction) {
 	return true;
 };
 
-Shapes.prototype.updatePlayingField = function() {
+Shape.prototype.insertIntoPlayingField = function() {
 	for (var i = 0; i < this.blocks.length; i++) {
 		var x = this.blocks[i][0];
 		var y = this.blocks[i][1];
@@ -296,7 +287,7 @@ Shapes.prototype.updatePlayingField = function() {
 	}
 };
 
-Shapes.prototype.isGameOver = function() {
+Shape.prototype.isGameOver = function() {
 	for (var i = 0; i < this.blocks.length; i++) {
 		var xCoord = this.blocks[i][0];
 		var yCoord = this.blocks[i][1];
@@ -307,7 +298,7 @@ Shapes.prototype.isGameOver = function() {
 	return false;
 };
 
-Shapes.prototype.updatePiece = function() {
+Shape.prototype.updateShape = function() {
 	if (!menu.pause && !menu.gameOver) {
 		if (actions.shiftRight.state) {
 			if (keyPressUpdateRate === 0)
@@ -325,26 +316,26 @@ Shapes.prototype.updatePiece = function() {
 			keyPressUpdateRate = (keyPressUpdateRate + 1) % SHAPEUPDATERATE;
 		}
 
-		if (actions.rotateRight.state && Shapes.prototype.rotateOnce) {
+		if (actions.rotateRight.state && Shape.prototype.rotateOnce) {
 			if (!this.rotate(1, 0)) {
 				this.wallKick(1);
 			}
-		} else if (actions.rotateLeft.state && Shapes.prototype.rotateOnce) {
+		} else if (actions.rotateLeft.state && Shape.prototype.rotateOnce) {
 			if (!this.rotate(-1, 0)) {
 				this.wallKick(-1);
 			}
 		}  	
 
-		if (actions.hardDrop.state && Shapes.prototype.dropHard) {	
+		if (actions.hardDrop.state && Shape.prototype.dropHard) {	
 			this.hardDrop();
 		} 		
 	}	
 
 	if (!actions.hardDrop.state) {
-		Shapes.prototype.dropHard = true;
+		Shape.prototype.dropHard = true;
 	}	
 	if (!actions.rotateRight.state && !actions.rotateLeft.state) {
-		Shapes.prototype.rotateOnce = true;
+		Shape.prototype.rotateOnce = true;
 	}		
 };
 
@@ -366,7 +357,7 @@ function getStartingPositions(type, verticalShfit) {
 	return startingPosition;
 }
 
-function clearFilledLine() {
+function removeFilledLine() {
 	var newPlayingField = [];
 	for (var i = 0; i < playingField.length; i++) {
 		var consecutives = 0;
@@ -382,8 +373,8 @@ function clearFilledLine() {
 			newPlayingField.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 			menu.score++;
 			menu.updateScore();
-			if (menu.score % 10 === 0 && Shapes.prototype.updateRate > 10) {
-				Shapes.prototype.updateRate -= 10;
+			if (menu.score % 10 === 0 && Shape.prototype.updateRate > 10) {
+				Shape.prototype.updateRate -= 10;
 				menu.level++;
 				menu.updateLevel();
 			}
@@ -394,21 +385,21 @@ function clearFilledLine() {
 
 function holdPiece() {
 	// check if there is no piece held
-	if (!Shapes.prototype.storedPiece) {
+	if (!Shape.prototype.storedPiece) {
 		var currentPiece = nextPiece.type;
 		nextPiece = generatePiece();
 	} else {
-		var currentPiece = Shapes.prototype.storedPiece;
+		var currentPiece = Shape.prototype.storedPiece;
 	}
 
 	player.updateInterval = clearInterval(player.updateInterval);
 
-	Shapes.prototype.storedPiece = player.type;
-	Shapes.prototype.hold = false;	
+	Shape.prototype.storedPiece = player.type;
+	Shape.prototype.hold = false;	
 
-	player.removeFromPlayingField();
+	player.clearFromPlayingField();
 	player = initialiseNewPiece(currentPiece);
-	drawStoredShape(Shapes.prototype.storedPiece);
+	drawStoredShape(Shape.prototype.storedPiece);
 }
 
 function generatePiece() {
@@ -416,9 +407,7 @@ function generatePiece() {
 		shapeTypes = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 	}
 	var random = Math.floor(Math.random() * shapeTypes.length);
-	var generatedShape = new Shapes(shapeTypes[random]);
-
-	test.heldShapes.push(shapeTypes[random]);
+	var generatedShape = new Shape(shapeTypes[random]);
 
 	shapeTypes.splice(random, 1);
 
@@ -429,7 +418,7 @@ function generatePiece() {
 function initialiseNewPiece(type) {
 	// check if argument given is valid
 	if (['I', 'J', 'L', 'O', 'S', 'T', 'Z'].indexOf(type) !== -1) {
-		var currentShape = new Shapes(type);
+		var currentShape = new Shape(type);
 	} else {
 		var currentShape = nextPiece;
 		nextPiece = generatePiece();
@@ -441,7 +430,7 @@ function initialiseNewPiece(type) {
 		currentShape.updateInterval = setInterval(function() { 
 			currentShape.autoDrop() 
 		}, currentShape.updateRate); 
-		currentShape.updatePiece();
+		currentShape.updateShape();
 	}
 	
 	
@@ -449,6 +438,7 @@ function initialiseNewPiece(type) {
 }
 
 function canShiftUp(piece) {
+	// shifts shape up by one if spawned in invalid position
 	if (piece.isGameOver()) {
 		piece.blocks = getStartingPositions(piece.type, 1);
 		piece.center[1]--;
@@ -478,10 +468,10 @@ function createPlayingField() {
 }
 
 function restartGame() {
-	Shapes.prototype.dropHard = true;
-	Shapes.prototype.hold = true;
-	Shapes.prototype.storedPiece = undefined;
-	Shapes.prototype.updateRate = 100;
+	Shape.prototype.dropHard = true;
+	Shape.prototype.hold = true;
+	Shape.prototype.storedPiece = undefined;
+	Shape.prototype.updateRate = 100;
 
 	player.updateInterval = clearInterval(player.updateInterval);
 
@@ -511,7 +501,7 @@ function pauseGame() {
 		player.updateInterval = clearInterval(player.updateInterval);	
 	} else {
 		var nextDisplay = nextPiece.type;
-		var holdDisplay = Shapes.storedPiece;
+		var holdDisplay = Shape.storedPiece;
 		if (!player.updateInterval) {
 			player.updateInterval = setInterval(function() { 
 				player.autoDrop() 
@@ -550,7 +540,7 @@ function render() {
 	if (menu.pause) {
 		menu.drawPauseMenu();
 	} else {
-		player.updatePiece();
+		player.updateShape();
 		drawPlayingField();
 	}	
 	if (menu.gameOver) {
