@@ -6,8 +6,6 @@ BUGS/ISSUES
 IMPROVE
 
 IMPLEMENT
--Start screen
--Wall kick
 -Ghost piece
 */
 "use strict";
@@ -47,7 +45,7 @@ function Shapes(type) {
 	this.locking = false;
 	this.stopRotating = true;
 	this.autoDropRate = 0;
-	this.center = [4, 1];
+	this.center = [4, 3];
 	this.blocks = getStartingPositions(type, 2);
 }
 
@@ -239,9 +237,7 @@ Shapes.prototype.softDrop = function() {
 	this.updatePlayingField();	
 };
 
-Shapes.prototype.shiftHorizontally = function(units) {
-	var horizontalShift = units;
-
+Shapes.prototype.shiftHorizontally = function(horizontalShift) {
 	if (this.detectPieceCollisions(horizontalShift, 0)) {
 		this.removeFromPlayingField();
 		this.center[0] += horizontalShift;
@@ -252,12 +248,12 @@ Shapes.prototype.shiftHorizontally = function(units) {
 	this.updatePlayingField();	
 };
 
-Shapes.prototype.rotate = function(direction) {
+Shapes.prototype.rotate = function(direction, horizontalOffset) {
 	var type = this.type;
 	var length = this[type].rotationCoordinateX.length;
 	var newIndex = (this.rotationIndex + direction).mod(length);
 	for (var i = 0; i < this.blocks.length; i++) {
-		var offsetX = this[type].rotationCoordinateX[newIndex][i];
+		var offsetX = this[type].rotationCoordinateX[newIndex][i] + horizontalOffset;
 		var offsetY = this[type].rotationCoordinateY[newIndex][i];
 		
 		// check if rotated block may have a collision
@@ -267,8 +263,9 @@ Shapes.prototype.rotate = function(direction) {
 	}
 	this.removeFromPlayingField();
 	this.rotationIndex = newIndex;
+	this.center[0] += horizontalOffset;
 	for (var i = 0; i < this.blocks.length; i++) {
-		var newX = this.center[0] + this[type].rotationCoordinateX[newIndex][i];
+		var newX = this.center[0] + this[type].rotationCoordinateX[newIndex][i] + horizontalOffset;
 		this.blocks[i][0] = newX;
 
 		var newY = this.center[1] + this[type].rotationCoordinateY[newIndex][i];
@@ -276,6 +273,16 @@ Shapes.prototype.rotate = function(direction) {
 	}
 	Shapes.prototype.rotateOnce = false;
 	this.updatePlayingField();	
+
+	return true;
+};
+
+Shapes.prototype.wallKick = function(direction) {
+	if (!this.rotate(direction, 1)) {
+		if (!this.rotate(direction, -1)) {
+			return false;
+		}
+	}
 	return true;
 };
 
@@ -318,9 +325,13 @@ Shapes.prototype.updatePiece = function() {
 		}
 
 		if (actions.rotateRight.state && Shapes.prototype.rotateOnce) {
-			this.rotate(1);
+			if (!this.rotate(1, 0)) {
+				this.wallKick(1);
+			}
 		} else if (actions.rotateLeft.state && Shapes.prototype.rotateOnce) {
-			this.rotate(-1);
+			if (!this.rotate(-1, 0)) {
+				this.wallKick(-1);
+			}
 		}  	
 
 		if (actions.hardDrop.state && Shapes.prototype.dropHard) {	
@@ -439,8 +450,10 @@ function initialiseNewPiece(type) {
 function canShiftUp(piece) {
 	if (piece.isGameOver()) {
 		piece.blocks = getStartingPositions(piece.type, 1);
+		piece.center[1] += 1;
 		if (piece.isGameOver()) {
 			piece.blocks = getStartingPositions(piece.type, 0);
+			piece.center[1] += 1;
 			if (piece.isGameOver()) {
 				return false;
 			}
