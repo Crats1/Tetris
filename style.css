@@ -47,15 +47,15 @@ audio {
     margin: auto;
     margin-top: 3%;
     padding: 0;
-    width: 500px;
-    height: 650px;
+    width: 700px;
+    height: 600px;
 }
 
 #canvas {
     position: absolute;
 }
 
-#menu {
+#menu, #next {
     display: inline-block;
     vertical-align: top;
     text-align: center;
@@ -69,8 +69,15 @@ audio {
     margin: 3px auto;
 }
 
-#next, #holdPiece {
-    margin: 30px auto;
+#next {
+    height: 150px;
+    width: 150px;
+    margin-top: 0;
+    vertical-align: top;
+}
+
+#next table {
+    margin: 0 auto;
 }
 
 #playing-field {
@@ -82,7 +89,7 @@ audio {
     height: 125px;
     position: absolute;
     top: 225px;
-    right: 62px;
+    left: 188px;
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
     font-size: 30px;
