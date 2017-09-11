@@ -418,7 +418,7 @@ function initialiseNewPiece(type) {
 
 	if (!canShiftUp(currentShape)) {
 		menu.gameOver = true;	
-		musicToggle();
+		sounds.music.pause();
 		sounds.gameOver.play();		
 	} else {
 		currentShape.updateInterval = setInterval(function() { 

@@ -28,6 +28,12 @@ function initialiseSounds() {
 
 	soundToggle();
 	musicToggle();
+	
+	// loops through music
+	sounds.music.addEventListener('ended', function() {
+	    this.currentTime = 0;
+	    this.play();
+	}, false);	
 }
 
 function createSound(soundName, volume) {

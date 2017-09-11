@@ -36,7 +36,7 @@ var menu = {
 		ctx.fillRect(backgroundX, backgroundY, backgroundWidth, backgroundHeight);
 		ctx.globalAlpha = 1;	
 
-		this.drawText(text, "40px arial", "#efefef", textX, textY);
+		this.drawText(text, "40px sans-serif", "#efefef", textX, textY);
 		ctx.closePath();
 		document.getElementById("playAgainBtn").style.display = "block";
 	},
@@ -47,7 +47,7 @@ var menu = {
 		var textY = canvas.height / 2;
 
 		ctx.beginPath();
-		this.drawText(text, "40px arial", "black", textX, textY);	
+		this.drawText(text, "40px sans-serif", "black", textX, textY);	
 		ctx.closePath();
 	},
 	changeStartScreenState: function(state) {
