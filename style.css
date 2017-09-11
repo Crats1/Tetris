@@ -11,6 +11,13 @@ button {
     background-color: #efefef;
     border: 1px solid #aaa;
 }
+input {
+    width: 110px;
+    height: 35px;
+    margin: 2px;
+    background-color: #efefef;
+    border: 1px solid #aaa;
+}
 
 canvas {
     border: 2px solid grey;
@@ -24,6 +31,10 @@ td {
     width: 30px;
     height: 30px;
     border: 1px solid white;
+}
+
+audio {
+    display: none;
 }
 
 #game {
@@ -53,7 +64,7 @@ td {
     padding: 0 10px;
 }
 
-#menu button {
+#menu button, #menu input {
     display: block;
     margin: 3px auto;
 }

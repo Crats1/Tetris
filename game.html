@@ -4,6 +4,7 @@
 		<title>Tetris</title>
 		<link rel="shortcut icon" type="image/x-icon" href="favicon2.ico" />
 		<link rel="stylesheet" href="style.css">
+		<script src="audio.js"></script>
 		<script src="game.js"></script>
 		<script src="menu.js"></script>
 		<script src="test.js"></script>		
@@ -25,6 +26,9 @@
 					<h5 id="level">Level: 1</h5>
 					<h5 id="score">Lines: 0</h5>
 				</div>
+				<input id="sound-toggle" type="button" value="Turn Sounds Off">
+				<input id="music-toggle" type="button" value="Turn Music Off">
+
 			</div>	
 			<div id="playing-field">
 				<canvas id="canvas" width="300" height="600">Please use a newer browser</canvas>
@@ -49,5 +53,11 @@
 			<p>Z - Rotate shape left</p>
 			<p>C - Store shape</p>
 		</div>
+		<audio id="shape-rotate" src="sounds/block-rotate.mp3"></audio>
+		<audio id="shape-lock" src="sounds/force-hit.mp3"></audio>
+		<audio id="select" src="sounds/select.mp3"></audio>
+		<audio id="pauseSound" src="sounds/pause.mp3"></audio>
+		<audio id="gameOver" src="sounds/Tetris (Game Boy) - 16. Game Over.mp3"></audio>
+		<audio id="music" src="sounds/Original Tetris theme (Tetris Soundtrack).mp3"></audio>
 	</body>
 </html>

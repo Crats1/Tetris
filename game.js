@@ -165,6 +165,7 @@ Shape.prototype.lockPiece = function(lockDelay) {
 		}
 		Shape.prototype.hold = true;
 		removeFilledLine();
+		playSound("lock");
 		player.updateInterval = clearInterval(player.updateInterval);
 		player = initialiseNewPiece();
 				
@@ -266,6 +267,7 @@ Shape.prototype.rotate = function(direction, horizontalOffset) {
 	this.center[0] += horizontalOffset;
 	Shape.prototype.rotateOnce = false;
 	this.insertIntoPlayingField();	
+	playSound("rotate");
 	return true;
 };
 
@@ -425,7 +427,9 @@ function initialiseNewPiece(type) {
 	}
 
 	if (!canShiftUp(currentShape)) {
-		menu.gameOver = true;			
+		menu.gameOver = true;	
+		sounds.music.pause();
+		sounds.gameOver.play();		
 	} else {
 		currentShape.updateInterval = setInterval(function() { 
 			currentShape.autoDrop() 
@@ -468,6 +472,8 @@ function createPlayingField() {
 }
 
 function restartGame() {
+	playSound("select");
+	resetMusic();
 	Shape.prototype.dropHard = true;
 	Shape.prototype.hold = true;
 	Shape.prototype.storedPiece = undefined;
@@ -486,7 +492,7 @@ function restartGame() {
 	playAgainBtn.style.display = "none";
 
 	playingField = createPlayingField();
-	player = initialiseNewPiece(player.type);
+	player = initialiseNewPiece();
 	nextPiece = generatePiece();
 	
 	drawStoredShape();
@@ -494,6 +500,7 @@ function restartGame() {
 }
 
 function pauseGame() {
+	playSound("pause");
 	menu.pause = !menu.pause;
 	if (menu.pause) {
 		var nextDisplay = undefined;
@@ -509,6 +516,7 @@ function pauseGame() {
 		}
 		
 	}
+	musicToggle();
 	drawNextPiece(nextDisplay);
 	drawStoredShape(holdDisplay);	
 }

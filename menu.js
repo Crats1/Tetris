@@ -153,6 +153,8 @@ function createGrid() {
 }
 
 function initialiseGame() {
+	initialiseSounds();
+	
 	playAgainBtn = document.getElementById("playAgainBtn");
 	playAgainBtn.addEventListener("click", restartGame);
 
