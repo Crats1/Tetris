@@ -522,6 +522,26 @@ function pauseGame() {
 	drawStoredShape(holdDisplay);	
 }
 
+function drawPlayingField() {
+	for (var row = 2; row < playingField.length; row++) {
+		for (var column = 0; column < playingField[row].length; column++) {
+			// render block only when not empty
+			if (playingField[row][column]) {
+				var x = column * BLOCKLENGTH;
+				var y = row * BLOCKLENGTH - 2 * BLOCKLENGTH;
+				var colour = playingField[row][column];
+
+				ctx.beginPath();
+				ctx.fillStyle = colour;
+				ctx.fillRect(x, y, BLOCKLENGTH, BLOCKLENGTH);
+				ctx.lineWidth = 1;
+				ctx.strokeRect(x, y, BLOCKLENGTH, BLOCKLENGTH);
+				ctx.closePath();				
+			}
+		}
+	}	
+}
+
 function render() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.strokeStyle = "white";
@@ -530,23 +550,8 @@ function render() {
 		menu.drawPauseMenu();
 	} else {
 		player.updatePiece();
-		for (var row = 2; row < playingField.length; row++) {
-			for (var column = 0; column < playingField[row].length; column++) {
-				// render block only when not empty
-				if (playingField[row][column]) {
-					var x = column * BLOCKLENGTH;
-					var y = row * BLOCKLENGTH - 2 * BLOCKLENGTH;
-					var colour = playingField[row][column];
+		drawPlayingField();
 
-					ctx.beginPath();
-					ctx.fillStyle = colour;
-					ctx.fillRect(x, y, BLOCKLENGTH, BLOCKLENGTH);
-					ctx.lineWidth = 1;
-					ctx.strokeRect(x, y, BLOCKLENGTH, BLOCKLENGTH);
-					ctx.closePath();				
-				}
-			}
-		}
 	}	
 	if (menu.gameOver) {
 		menu.drawGameOverMenu();
