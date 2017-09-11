@@ -66,6 +66,18 @@ td {
     display: inline-block;
 }
 
+#start-screen {
+    width: 250px;
+    height: 125px;
+    position: absolute;
+    top: 225px;
+    right: 62px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 30px;
+    text-align: center;
+}
+
 #playAgainBtn {
     display: none;
     position: relative;

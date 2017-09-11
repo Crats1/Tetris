@@ -14,6 +14,11 @@ var menu = {
 	updateLevel: function() {
 		document.getElementById("level").innerHTML = "Level: " + this.level;
 	},
+	drawText: function(text, font, colour, x, y) {
+		ctx.fillStyle = colour;
+		ctx.font = font;
+		ctx.fillText(text, x, y);
+	},	
 	drawGameOverMenu: function() {
 		var text = "GAME OVER";
 		var textWidth = ctx.measureText(text).width;
@@ -31,9 +36,7 @@ var menu = {
 		ctx.fillRect(backgroundX, backgroundY, backgroundWidth, backgroundHeight);
 		ctx.globalAlpha = 1;	
 
-		ctx.fillStyle = "#efefef";
-		ctx.font = "40px arial";
-		ctx.fillText(text, textX, textY);	
+		this.drawText(text, "40px arial", "#efefef", textX, textY);
 		ctx.closePath();
 		document.getElementById("playAgainBtn").style.display = "block";
 	},
@@ -44,11 +47,12 @@ var menu = {
 		var textY = canvas.height / 2;
 
 		ctx.beginPath();
-		ctx.fillStyle = "black";
-		ctx.font = "40px arial";
-		ctx.fillText(text, textX, textY);	
+		this.drawText(text, "40px arial", "black", textX, textY);	
 		ctx.closePath();
-	}
+	},
+	changeStartScreenState: function(state) {
+		document.getElementById("start-screen").style.display = state;
+	},
 };
 
 function createTable(element) {
@@ -149,12 +153,6 @@ function createGrid() {
 }
 
 function initialiseGame() {
-	canvas = document.getElementById("canvas");
-	ctx = canvas.getContext("2d")
-
-	holdPieceGrid = createTable("hold");
-	nextPieceGrid = createTable("nextPiece");
-
 	playAgainBtn = document.getElementById("playAgainBtn");
 	playAgainBtn.addEventListener("click", restartGame);
 
@@ -171,8 +169,28 @@ function initialiseGame() {
 	player = initialiseNewPiece();
 }
 
-window.addEventListener("load", function() {
-	initialiseGame();
+function setUpGame() {
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");	
+	holdPieceGrid = createTable("hold");
+	nextPieceGrid = createTable("nextPiece");
 	createGrid();
-	render();
+}
+
+function startGame(e) {
+	if (e.keyCode === 32) {
+		initialiseGame();
+		render();
+		
+		menu.changeStartScreenState("none");
+		document.removeEventListener("keydown", startGame);
+		e.preventDefault();
+	}
+}
+
+window.addEventListener("load", function() {
+	setUpGame();
+
+	menu.changeStartScreenState("block");
+	document.addEventListener("keydown", startGame);
 });
