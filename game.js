@@ -515,8 +515,6 @@ function render() {
 	
 	if (menu.pause) {
 		menu.drawPauseMenu();
-	} else if (menu.gameOver) {
-		menu.drawGameOverMenu();
 	} else {
 		player.updatePiece();
 		for (var row = 2; row < playingField.length; row++) {
@@ -537,6 +535,9 @@ function render() {
 			}
 		}
 	}	
+	if (menu.gameOver) {
+		menu.drawGameOverMenu();
+	}
 	requestAnimationFrame(render);
 }
 
